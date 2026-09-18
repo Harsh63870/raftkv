@@ -1,0 +1,6 @@
+bin/
+data/
+tmp/
+
+# personal study notes, not part of the project
+learning.md

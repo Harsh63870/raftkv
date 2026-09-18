@@ -1,0 +1,58 @@
+name: raftkv
+
+x-node: &node
+  build: .
+  restart: unless-stopped
+  networks: [raftkv]
+
+services:
+  node1:
+    <<: *node
+    command:
+      - -id=node1
+      - -bootstrap
+      - -raft-addr=0.0.0.0:9001
+      - -raft-advertise=node1:9001
+      - -grpc-addr=0.0.0.0:50051
+      - -grpc-advertise=node1:50051
+      - -data-dir=/data
+    ports: ["50051:50051"]
+    volumes: [node1-data:/data]
+
+  node2:
+    <<: *node
+    command:
+      - -id=node2
+      - -join=node1:50051
+      - -raft-addr=0.0.0.0:9001
+      - -raft-advertise=node2:9001
+      - -grpc-addr=0.0.0.0:50051
+      - -grpc-advertise=node2:50051
+      - -data-dir=/data
+    ports: ["50052:50051"]
+    volumes: [node2-data:/data]
+    depends_on:
+      node1: {condition: service_healthy}
+
+  node3:
+    <<: *node
+    command:
+      - -id=node3
+      - -join=node1:50051,node2:50051
+      - -raft-addr=0.0.0.0:9001
+      - -raft-advertise=node3:9001
+      - -grpc-addr=0.0.0.0:50051
+      - -grpc-advertise=node3:50051
+      - -data-dir=/data
+    ports: ["50053:50051"]
+    volumes: [node3-data:/data]
+    depends_on:
+      node1: {condition: service_healthy}
+
+networks:
+  raftkv:
+
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:

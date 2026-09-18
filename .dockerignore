@@ -1,0 +1,6 @@
+data/
+.git/
+*.md
+scripts/
+buf.gen.yaml
+docker-compose.yml
